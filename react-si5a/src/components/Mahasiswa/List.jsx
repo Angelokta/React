@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 // Import axios untuk melakukan HTTP request ke API
 import axios from "axios";
+import { NavLink } from "react-router-dom";
 
 export default function MahasiswaList() {
   // State untuk menyimpan data fakultas dari API
@@ -48,6 +49,9 @@ export default function MahasiswaList() {
   return (
     <div>
       <h1>Mahasiswa List</h1>
+      <NavLink to="/mahasiswa/create" className="btn btn-primary mb-3">
+        Tambah Mahasiswa
+      </NavLink>
       <table className="table table-striped table-hover">
         <thead>
           <tr>
@@ -65,7 +69,7 @@ export default function MahasiswaList() {
                 <td>{mhs.nama}</td>
                 <td>{mhs.tempat_lahir}</td>
                 <td>{mhs.tanggal_lahir}</td>
-                <td>{mhs.prodi_id.nama}</td>
+                <td>{mhs.prodi_id? mhs.prodi_id.nama: null}</td>
             </tr>
           ))}
         </tbody>

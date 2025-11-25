@@ -65,7 +65,7 @@ export default function ProdiList() {
             <tr key={prodi._id}>
               <td>{prodi.nama}</td>
               <td>{prodi.singkatan}</td>
-               <td>{prodi.fakultas_id? prodi.fakultas_id.nama : null}</td>
+              <td>{prodi.fakultas_id? prodi.fakultas_id.nama : null}</td>
             </tr>
           ))}
         </tbody>
