@@ -1,9 +1,12 @@
 // Import useState untuk mengelola state
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // Import axios untuk melakukan HTTP request
 import axios from "axios";
 
 export default function CreateProdi() {
+  // State untuk menyimpan list Fakultas dari API
+  const [fakultasList, setFakultasList] = useState([]);
+
   // State untuk menyimpan nilai input form
   const [formData, setFormData] = useState({
     nama: "",
@@ -67,6 +70,35 @@ export default function CreateProdi() {
     }
   };
 
+  // useEffect akan dijalankan sekali saat komponen pertama kali di-render
+  useEffect(() => {
+    // Fungsi async untuk fetch data dari API
+    const fetchFakultas = async () => {
+      try {
+        // Set loading true sebelum fetch data
+        setLoading(true);
+        // Mengambil data dari API menggunakan axios
+        const response = await axios.get(
+          "https://newexpresssi5a-weld.vercel.app/api/fakultas"
+        );
+        // Simpan data yang diterima ke state fakultas
+        setFakultasList(response.data);
+        // Reset error jika fetch berhasil
+        setError(null);
+      } catch (err) {
+        // Jika terjadi error, simpan pesan error ke state
+        setError(err.message);
+        console.error("Error fetching fakultas:", err);
+      } finally {
+        // Set loading false setelah proses selesai (berhasil atau gagal)
+        setLoading(false);
+      }
+    };
+
+    // Panggil fungsi fetchFakultas
+    fetchFakultas();
+  }, []); // Dependency array kosong = hanya dijalankan sekali saat mount
+
   // Render form dengan integrasi API
   return (
     <div className="container mt-5">
@@ -114,9 +146,9 @@ export default function CreateProdi() {
 
         <div className="mb-3">
           <label htmlFor="fakultas_id" className="form-label">
-            Fakultas ID
+            ID Fakultas Pakai Select
           </label>
-          <input
+          {/* <input
             type="text"
             className="form-control"
             id="fakultas_id"
@@ -125,7 +157,14 @@ export default function CreateProdi() {
             onChange={handleChange}
             placeholder="Masukkan ID Fakultas"
             disabled={loading}
-          />
+          /> */}
+          <select name="fakultas_id" id="fakultas_id" value={formData.fakultas_id} onChange={handleChange} className="form-control">
+            {fakultasList.map((fakultasItem) => (
+              <option value={fakultasItem._id} key={fakultasItem._id}>
+                {fakultasItem.nama}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="d-flex gap-2">

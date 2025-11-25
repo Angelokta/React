@@ -70,7 +70,7 @@ function App() {
           <Route path="/prodi/create" element={<ProdiCreate />} />
           <Route path="/mahasiswa" element={<MahasiswaList />} />
         </Routes>
-      </Suspense>_
+      </Suspense>
     </Router>
   );
 }
