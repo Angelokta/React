@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 // Import axios untuk melakukan HTTP request ke API
 import axios from "axios";
 import { NavLink } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function ProdiList() {
   // State untuk menyimpan data prodi dari API
@@ -46,6 +47,33 @@ export default function ProdiList() {
   // Tampilkan pesan error jika ada kesalahan
   if (error) return <div>Error: {error}</div>;
 
+  const handleDelete = (id, nama) => {
+    Swal.fire({
+      title: `Yakin mau menghapus prodi ${nama}`,
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if(result.isConfirmed){
+          // panggil endpoint API express pakai axios.delete()
+          axios.delete(`https://newexpresssi5a-weld.vercel.app/api/prodi/${id}`)
+          .then((response) => {
+            // hapus baris pada tabel sesuai id / refresh state
+            setProdi(prodi.filter((f) => f._id !== id))
+
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success"
+          });
+        })
+      } // akhir if
+    });
+  }
+
   return (
     <div>
       <h1>Prodi List</h1>
@@ -58,6 +86,7 @@ export default function ProdiList() {
             <th>Nama</th>
             <th>Singkatan</th>
             <th>Fakultas</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -66,6 +95,10 @@ export default function ProdiList() {
               <td>{prodi.nama}</td>
               <td>{prodi.singkatan}</td>
               <td>{prodi.fakultas_id? prodi.fakultas_id.nama : null}</td>
+              <td>
+                  <button className="btn btn-danger" onClick={() => handleDelete(prodi._id, prodi.nama)}
+                    >Hapus</button>
+              </td>
             </tr>
           ))}
         </tbody>

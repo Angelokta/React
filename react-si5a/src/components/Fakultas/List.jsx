@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 // Import axios untuk melakukan HTTP request ke API
 import axios from "axios";
 import { NavLink } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function FakultasList() {
   // State untuk menyimpan data fakultas dari API
@@ -46,6 +47,33 @@ export default function FakultasList() {
   // Tampilkan pesan error jika ada kesalahan
   if (error) return <div>Error: {error}</div>;
 
+  const handleDelete = (id, nama) => {
+    Swal.fire({
+      title: `Yakin mau menghapus fakultas ${nama}`,
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if(result.isConfirmed){
+          // panggil endpoint API express pakai axios.delete()
+          axios.delete(`https://newexpresssi5a-weld.vercel.app/api/fakultas/${id}`)
+          .then((response) => {
+            // hapus baris pada tabel sesuai id / refresh state
+            setFakultas(fakultas.filter((f) => f._id !== id))
+
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success"
+          });
+        })
+      } // akhir if
+    });
+  }
+
   // Render tabel fakultas jika data sudah tersedia
   return (
     <div>
@@ -58,6 +86,7 @@ export default function FakultasList() {
           <tr>
             <th>Nama</th>
             <th>Singkatan</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -67,6 +96,10 @@ export default function FakultasList() {
             <tr key={fak._id}>
               <td>{fak.nama}</td>
               <td>{fak.singkatan}</td>
+              <td>
+                  <button className="btn btn-danger" onClick={() => handleDelete(fak._id, fak.nama)}
+                    >Hapus</button>
+              </td>
             </tr>
           ))}
         </tbody>
