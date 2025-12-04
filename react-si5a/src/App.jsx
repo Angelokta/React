@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route, NavLink} from "react-router-dom
 
 // impor komponen 
 const Home = React.lazy(() => import("./components/Home"));
+const FakultasEdit = React.lazy(() => import("./components/Fakultas/Edit"));
 const FakultasList = React.lazy(() => import("./components/Fakultas/List"));
 const FakultasCreate = React.lazy(() => import("./components/Fakultas/Create"));
 const ProdiList = React.lazy(() => import("./components/Prodi/List"));
@@ -71,6 +72,7 @@ function App() {
           <Route path="/prodi/create" element={<ProdiCreate />} />
           <Route path="/mahasiswa" element={<MahasiswaList />} />
           <Route path="/mahasiswa/create" element={<MahasiswaCreate />} />
+          <Route path="/fakultas/edit/:id" element={<FakultasEdit />} />
         </Routes>
       </Suspense>
     </Router>

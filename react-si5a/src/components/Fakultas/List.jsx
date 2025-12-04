@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 // Import axios untuk melakukan HTTP request ke API
 import axios from "axios";
+// Import NavLink untuk navigasi antar route
 import { NavLink } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -49,30 +50,33 @@ export default function FakultasList() {
 
   const handleDelete = (id, nama) => {
     Swal.fire({
-      title: `Yakin mau menghapus fakultas ${nama}`,
+      title: `Yakin mau hapus fakultas ${nama} `,
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     }).then((result) => {
-      if(result.isConfirmed){
-          // panggil endpoint API express pakai axios.delete()
-          axios.delete(`https://newexpresssi5a-weld.vercel.app/api/fakultas/${id}`)
+      if (result.isConfirmed) {
+        // panggil endpoint API express pakai axios.delete()
+        axios
+          .delete(`https://newexpresssi5a-weld.vercel.app/api/fakultas/${id}`)
           .then((response) => {
-            // hapus baris pada tabel sesuai id / refresh state
-            setFakultas(fakultas.filter((f) => f._id !== id))
+            console.log(response);
 
-          Swal.fire({
-            title: "Deleted!",
-            text: "Your file has been deleted.",
-            icon: "success"
+            // hapus baris pada tabel sesuai id / refresh state
+            setFakultas(fakultas.filter((f) => f._id != id));
+
+            Swal.fire({
+              title: "Deleted!",
+              text: response.data.message,
+              icon: "success",
+            }); // akhir Swal
           });
-        })
       } // akhir if
     });
-  }
+  };
 
   // Render tabel fakultas jika data sudah tersedia
   return (
@@ -97,8 +101,18 @@ export default function FakultasList() {
               <td>{fak.nama}</td>
               <td>{fak.singkatan}</td>
               <td>
-                  <button className="btn btn-danger" onClick={() => handleDelete(fak._id, fak.nama)}
-                    >Hapus</button>
+                <NavLink
+                  to={`/fakultas/edit/${fak._id}`}
+                  className="btn btn-warning me-2"
+                >
+                  Ubah
+                </NavLink>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => handleDelete(fak._id, fak.nama)}
+                >
+                  Hapus
+                </button>
               </td>
             </tr>
           ))}
