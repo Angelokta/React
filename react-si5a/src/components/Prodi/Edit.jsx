@@ -1,64 +1,54 @@
-// Import useState dan useEffect
+// Import useState dan useEffect untuk mengelola state dan side effects
 import { useState, useEffect } from "react";
-// Import axios
+// Import axios untuk melakukan HTTP request
 import axios from "axios";
-// Import useNavigate & useParams
+// Import useNavigate dan useParams
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function EditMahasiswa() {
+export default function EditProdi() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // State list prodi
-  const [prodiList, setProdiList] = useState([]);
-
-  // State form mahasiswa
+  // State form
   const [formData, setFormData] = useState({
-    npm: "",
     nama: "",
-    tempat_lahir: "",
-    tanggal_lahir: "",
-    prodi_id: "",
+    singkatan: "",
+    fakultas_id: "",
   });
 
-  // State lainnya
+  // State daftar fakultas (dropdown)
+  const [fakultas, setFakultas] = useState([]);
+
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // Fetch data mahasiswa & prodi
+  // Fetch data prodi + fakultas
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoadingData(true);
 
-        const [mahasiswaRes, prodiRes] = await Promise.all([
-          axios.get(
-            `https://newexpresssi5a-weld.vercel.app/api/mahasiswa/${id}`
-          ),
-          axios.get(
-            `https://newexpresssi5a-weld.vercel.app/api/prodi`
-          ),
+        const [prodiRes, fakultasRes] = await Promise.all([
+          axios.get(`https://newexpresssi5a-weld.vercel.app/api/prodi/${id}`),
+          axios.get(`https://newexpresssi5a-weld.vercel.app/api/fakultas`),
         ]);
 
-        const mhs = mahasiswaRes.data;
-
         setFormData({
-          npm: mhs.npm,
-          nama: mhs.nama,
-          tempat_lahir: mhs.tempat_lahir,
-          tanggal_lahir: mhs.tanggal_lahir?.substring(0, 10),
-          prodi_id: mhs.prodi_id?._id || mhs.prodi_id,
+          nama: prodiRes.data.nama,
+          singkatan: prodiRes.data.singkatan,
+          fakultas_id:
+            prodiRes.data.fakultas_id?._id || prodiRes.data.fakultas_id,
         });
 
-        setProdiList(prodiRes.data);
+        setFakultas(fakultasRes.data);
         setError(null);
       } catch (err) {
         console.error(err);
         setError(
           err.response?.data?.message ||
             err.message ||
-            "Gagal mengambil data mahasiswa"
+            "Gagal mengambil data"
         );
       } finally {
         setIsLoadingData(false);
@@ -71,23 +61,14 @@ export default function EditMahasiswa() {
   // Handle change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
-  // Handle submit
+  // Submit update
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !formData.npm ||
-      !formData.nama ||
-      !formData.tempat_lahir ||
-      !formData.tanggal_lahir ||
-      !formData.prodi_id
-    ) {
+    if (!formData.nama || !formData.singkatan || !formData.fakultas_id) {
       setError("Semua field harus diisi!");
       return;
     }
@@ -97,17 +78,17 @@ export default function EditMahasiswa() {
 
     try {
       await axios.patch(
-        `https://newexpresssi5a-weld.vercel.app/api/mahasiswa/${id}`,
+        `https://newexpresssi5a-weld.vercel.app/api/prodi/${id}`,
         formData
       );
 
-      navigate("/mahasiswa");
+      navigate("/prodi");
     } catch (err) {
       console.error(err);
       setError(
         err.response?.data?.message ||
           err.message ||
-          "Gagal mengupdate data mahasiswa"
+          "Gagal mengupdate data"
       );
     } finally {
       setLoading(false);
@@ -120,7 +101,7 @@ export default function EditMahasiswa() {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">Edit Mahasiswa</h2>
+      <h2 className="mb-4">Edit Program Studi</h2>
 
       {error && (
         <div className="alert alert-danger" role="alert">
@@ -130,19 +111,7 @@ export default function EditMahasiswa() {
 
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label className="form-label">NPM</label>
-          <input
-            type="text"
-            className="form-control"
-            name="npm"
-            value={formData.npm}
-            onChange={handleChange}
-            disabled={loading}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Nama</label>
+          <label className="form-label">Nama Prodi</label>
           <input
             type="text"
             className="form-control"
@@ -154,42 +123,30 @@ export default function EditMahasiswa() {
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Tempat Lahir</label>
+          <label className="form-label">Singkatan</label>
           <input
             type="text"
             className="form-control"
-            name="tempat_lahir"
-            value={formData.tempat_lahir}
+            name="singkatan"
+            value={formData.singkatan}
             onChange={handleChange}
             disabled={loading}
           />
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Tanggal Lahir</label>
-          <input
-            type="date"
-            className="form-control"
-            name="tanggal_lahir"
-            value={formData.tanggal_lahir}
-            onChange={handleChange}
-            disabled={loading}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Program Studi</label>
+          <label className="form-label">Fakultas</label>
           <select
             className="form-control"
-            name="prodi_id"
-            value={formData.prodi_id}
+            name="fakultas_id"
+            value={formData.fakultas_id}
             onChange={handleChange}
             disabled={loading}
           >
-            <option value="">-- Pilih Prodi --</option>
-            {prodiList.map((prodi) => (
-              <option key={prodi._id} value={prodi._id}>
-                {prodi.nama}
+            <option value="">-- Pilih Fakultas --</option>
+            {fakultas.map((f) => (
+              <option key={f._id} value={f._id}>
+                {f.nama}
               </option>
             ))}
           </select>
@@ -202,7 +159,7 @@ export default function EditMahasiswa() {
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={() => navigate("/mahasiswa")}
+            onClick={() => navigate("/prodi")}
             disabled={loading}
           >
             Batal
